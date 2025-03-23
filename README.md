@@ -14,7 +14,7 @@ Este es un proyecto desarrollado en Laravel con Docker para facilitar el desplie
 ### 1 - Clonar el repositorio  
 ```bash  
 git clone https://github.com/itsoncd/centro_down_restful_api.git  
-cd tu-repositorio  
+cd centro_down_restful_api
 ```
 
 ### 2 - Copia el archivo env.example y renombralo a .env
