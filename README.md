@@ -13,7 +13,7 @@ Este es un proyecto desarrollado en Laravel con Docker para facilitar el desplie
 ## 🚀 Instalación  
 ### 1 - Clonar el repositorio  
 ```bash  
-git clone https://github.com/tu-usuario/tu-repositorio.git  
+git clone https://github.com/itsoncd/centro_down_restful_api.git  
 cd tu-repositorio  
 ```
 
