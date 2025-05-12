@@ -8,26 +8,20 @@ use Illuminate\Support\Carbon;
 
 class Token extends Model
 {
-    use HasFactory;
+    use HasFactory; // Aquí usamos el trait HasFactory
+
+    public $timestamps = false;
 
     protected $fillable = [
         'token',
+        'expiresAt',
+        'createdAt',
         'user_id',
-        'expires_at',
-    ];
-
-    protected $casts = [
-        'expires_at' => 'datetime',
+        'tokenType',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    // Verifica si el token aún es válido
-    public function isValid(): bool
-    {
-        return Carbon::now()->lt($this->expires_at);
     }
 }

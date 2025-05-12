@@ -10,10 +10,11 @@ return new class extends Migration
     {
         Schema::create('tokens', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('token')->unique();
-            $table->timestamp('expires_at');
-            $table->timestamps();
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('tokenType'); // por ejemplo: access, refresh
         });
     }
 
