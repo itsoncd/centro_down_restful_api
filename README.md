@@ -7,7 +7,7 @@ Este es un proyecto desarrollado en Laravel con Docker para facilitar el desplie
 
 ## 📌 Requisitos  
 - [Docker](https://www.docker.com/) y [Docker Compose](https://docs.docker.com/compose/)  
-- [Composer](https://getcomposer.org/) (Gestor para Laravel)  
+- [Composer](https://getcomposer.org/)  
 - [Node.js](https://nodejs.org/) (opcional, si usas frontend con Laravel Mix o Vite)  
 
 ## 🚀 Instalación  

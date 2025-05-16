@@ -11,13 +11,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('role', ['admin', 'user', 'teacher'])->default('user');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->boolean('confirmed')->default(false);
             $table->string('password');
+            $table->boolean('isActive')->default(true);
+            $table->boolean('isVerified')->default(false);
             $table->timestamps();
         });
+
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();

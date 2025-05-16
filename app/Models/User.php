@@ -11,44 +11,65 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
+    // Los atributos que pueden ser asignados masivamente
     protected $fillable = [
         'name',
-        'role',
         'email',
         'password',
         'confirmed',
+        'isActive',
+        'isVerified',
     ];
 
+    // Atributos que no se deberían mostrar al serializar el modelo
     protected $hidden = [
-        'password',
+        'password', 
+        'remember_token', // Para ocultar también el token de "remember me"
     ];
 
+    // Atributos para los cuales se realizará una conversión a tipo
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'confirmed' => 'boolean',
+        'email_verified_at' => 'datetime', // Convertir a formato de fecha y hora
+        'password' => 'hashed', // Seguridad: Se indica que la contraseña está almacenada de forma segura
+        'confirmed' => 'boolean', // Asegura que 'confirmed' es tratado como booleano
+        'isActive' => 'boolean', // Asegura que 'isActive' es tratado como booleano
+        'isVerified' => 'boolean', // Asegura que 'isVerified' es tratado como booleano
     ];
 
-    // Definir los roles permitidos como un "Enum"
-    public const ROLES = ['admin', 'user', 'teacher'];
-
-    public static function getAllowedRoles(): array
-    {
-        return self::ROLES;
-    }
-
+    // Relación con la tabla de Tokens (Un Usuario tiene muchos Tokens)
     public function tokens()
     {
         return $this->hasMany(Token::class);
     }
 
+    // Métodos necesarios para implementar JWTAuth
     public function getJWTIdentifier()
     {
-        return $this->getKey();
+        return $this->getKey(); // Devuelve la clave primaria del usuario
     }
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'role' => $this->role ?? 'user', // Puedes incluir el rol del usuario en el token JWT si es necesario
+        ];
+    }
+
+    // Para establecer un mutador y encriptar contraseñas automáticamente
+    public function setPasswordAttribute($password)
+    {
+        $this->attributes['password'] = bcrypt($password); // Asegura que las contraseñas se guarden de forma segura
+    }
+
+    // Método para verificar si el usuario está activo
+    public function isActive()
+    {
+        return $this->isActive; // Verifica si el usuario está activo
+    }
+
+    // Método para verificar si el usuario ha confirmado su cuenta
+    public function isVerified()
+    {
+        return $this->isVerified; // Verifica si el usuario ha verificado su correo
     }
 }
