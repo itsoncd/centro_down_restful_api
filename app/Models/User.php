@@ -20,6 +20,11 @@ class User extends Authenticatable implements JWTSubject
         'isActive',
         'isVerified',
     ];
+    public function roles()
+{
+    return $this->belongsToMany(Role::class, 'user_roles')->withTimestamps();
+}
+
 
     // Atributos que no se deberían mostrar al serializar el modelo
     protected $hidden = [
