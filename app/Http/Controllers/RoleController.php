@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ApiResponse;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class RoleController extends Controller
 {
@@ -19,9 +20,13 @@ class RoleController extends Controller
     // Crear un nuevo rol
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|unique:roles,name|max:255',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|unique:roles,name|max:255',
+            ]);
+        } catch (ValidationException $e) {
+            return ApiResponse::error($e->errors(), 'Error de validación', 422);
+        }
 
         $role = Role::create([
             'name' => $request->name,

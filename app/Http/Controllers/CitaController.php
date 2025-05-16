@@ -10,6 +10,38 @@ use App\Helpers\ApiResponse;
 
 class CitaController extends Controller
 {
+
+    public function index()
+    {
+        $cita = Cita::all();
+        return ApiResponse::success($cita);
+    }
+    public function destroy($id)
+    {
+        $cita = Cita::find($id);
+
+        if (!$cita) {
+            return ApiResponse::error(null, 'Cita no encontrada', 404);
+        }
+
+        // Guardamos la información antes de eliminar
+        $citaEliminada = $cita->replicate();
+
+        $cita->delete();
+
+        return ApiResponse::success($citaEliminada, 'Cita eliminada exitosamente');
+    }
+
+    public function show($id)
+    {
+        $cita = Cita::find($id);
+
+        if (!$cita) {
+            return ApiResponse::error(null, 'Cita no encontrada', 404);
+        }
+
+        return ApiResponse::success($cita, 'Cita encontrada');
+    }
     public function store(Request $request)
     {
         try {
