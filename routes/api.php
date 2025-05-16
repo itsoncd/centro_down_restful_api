@@ -29,7 +29,13 @@ Route::prefix('roles')->group(function () {
     Route::delete('{id}', [RoleController::class, 'destroy']);
 });
 // Cita ROUTES
-Route::post('/citas', [CitaController::class, 'store']);
+Route::prefix('citas')->group(function () {
+    Route::post('/', [CitaController::class, 'store']);
+    Route::get('/', [CitaController::class, 'index']);
+    Route::delete('{id}', [CitaController::class, 'destroy']);
+    Route::get('{id}', [CitaController::class, 'show']);
+});
+
 // Alumno ROUTES
 Route::prefix('alumnos')->group(function () {
     Route::get('/', [AlumnoController::class, 'index']);
