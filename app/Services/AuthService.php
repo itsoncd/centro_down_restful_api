@@ -114,7 +114,17 @@ class AuthService
         // Enviar un correo de confirmación al iniciar sesión (opcional)
         // Mail::to($user->email)->send(new TestEmail($user->email));
 
-        return $token;
+        return [
+        'token' => $token,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->roles->pluck('name'),
+            'confirmed' => $user->confirmed,
+            'created_at' => $user->created_at->toDateTimeString(),
+        ]
+    ];
     }
 
     // Método para verificar el token de un solo uso

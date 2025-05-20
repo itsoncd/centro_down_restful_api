@@ -11,4 +11,8 @@ services:
       - MYSQL_DATABASE=${DB_DATABASE}
     container_name: centro_down_laravel
     volumes:
-      - ./mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+    driver: local

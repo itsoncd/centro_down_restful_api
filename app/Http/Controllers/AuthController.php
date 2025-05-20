@@ -43,11 +43,12 @@ class AuthController extends Controller
     {
         try {
             $credentials = $request->only(['email', 'password']);
-            $token = $this->authService->login($credentials);
+            $response = $this->authService->login($credentials);
 
             return response()->json([
                 'message' => 'Login exitoso',
-                'token' => $token,
+                'token' => $response['token'],
+                'user' => $response['user'],
             ], 200);
         } catch (\Exception $e) {
             $code = ($e->getCode() > 0) ? $e->getCode() : 400;

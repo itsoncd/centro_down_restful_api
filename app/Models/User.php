@@ -60,12 +60,6 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
-    // Para establecer un mutador y encriptar contraseñas automáticamente
-    public function setPasswordAttribute($password)
-    {
-        $this->attributes['password'] = bcrypt($password); // Asegura que las contraseñas se guarden de forma segura
-    }
-
     // Método para verificar si el usuario está activo
     public function isActive()
     {
