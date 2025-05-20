@@ -33,6 +33,7 @@ Route::prefix('citas')->group(function () {
     Route::post('/', [CitaController::class, 'store']);
     Route::get('/', [CitaController::class, 'index']);
     Route::delete('{id}', [CitaController::class, 'destroy']);
+    Route::put('{id}', [CitaController::class, 'update']);
     Route::get('{id}', [CitaController::class, 'show']);
 });
 

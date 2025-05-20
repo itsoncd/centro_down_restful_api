@@ -65,4 +65,34 @@ class CitaController extends Controller
 
         return ApiResponse::success($cita, 'Cita creada exitosamente', 201);
     }
+    public function update(Request $request, $id)
+{
+    $cita = Cita::find($id);
+
+    if (!$cita) {
+        return ApiResponse::error(null, 'Cita no encontrada', 404);
+    }
+
+    try {
+        $validated = $request->validate([
+            'user_id'        => 'required|exists:users,id',
+            'fecha_cita'     => 'required|date',
+            'correo'         => 'required|email|max:255',
+            'nombre_alumno'  => 'required|string|max:255',
+            'nombre_tutor'   => 'required|string|max:255'
+        ]);
+    } catch (ValidationException $e) {
+        return ApiResponse::error($e->errors(), 'Error de validación', 422);
+    }
+
+    $user = User::with('roles')->find($validated['user_id']);
+    if (!$user->roles->contains('name', 'director')) {
+        return ApiResponse::error("Rol de Usuario Invalido", 'El usuario no tiene el rol de director.', 403);
+    }
+
+    $cita->update($validated);
+
+    return ApiResponse::success($cita, 'Cita actualizada exitosamente');
+}
+
 }
