@@ -67,7 +67,7 @@ Route::prefix('users')->group(function () {
 Route::middleware([IsUserAuth::class])->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::post('logout', 'logout');
-        Route::get('auth/getInfoUser', 'getUser');
+        Route::get('auth/user', 'getUser');
     });
 
     Route::get('products', [ProductController::class, 'getProducts']);

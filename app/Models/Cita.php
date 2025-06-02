@@ -14,7 +14,9 @@ class Cita extends Model
         'fecha_cita',
         'correo',
         'nombre_alumno',
-        'nombre_tutor'
+        'nombre_tutor',
+        'hora_inicio',
+        'hora_fin',
     ];
 
     // Relación con el usuario que organizó la cita
