@@ -9,6 +9,7 @@ use App\Services\TokenService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use PhpParser\Node\Stmt\TryCatch;
 
 class AuthController extends Controller
@@ -71,14 +72,21 @@ class AuthController extends Controller
 
     // Metodo para reenviar un token nuevo por usuario
     public function resendVerificationToken(Request $request)
-    {
-        try {
-            $response = $this->authService->resendVerificationToken($request->only('email'));
-            return response()->json($response, 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 400);
-        }
+{
+    try {
+        $response = $this->authService->resendVerificationToken($request->only('email'));
+        return response()->json($response, 200);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'errors' => $e->validator->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage()
+        ], $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 400);
     }
+}
+
 
     // Método para obtener el usuario autenticado
     public function getUser()

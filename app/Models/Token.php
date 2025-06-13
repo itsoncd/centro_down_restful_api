@@ -14,11 +14,22 @@ class Token extends Model
 
     protected $fillable = [
         'token',
-        'expiresAt',
-        'createdAt',
+        'expires_at',
+        'created_at',
         'user_id',
         'tokenType',
     ];
+
+    protected $casts = [
+    'expires_at' => 'datetime',
+    'created_at' => 'datetime',
+];
+
+
+    public function isValid(): bool
+{
+    return $this->expires_at && now()->lessThanOrEqualTo($this->expires_at);
+}
 
     public function user()
     {

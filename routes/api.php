@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CitaController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\TutorController;
 
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 // Auth Routes
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
-Route::post('auth/sendToken', [AuthController::class, 'resendVerificationToken']);
+Route::post('auth/send-token', [AuthController::class, 'resendVerificationToken']);
 Route::get('auth/verify-email/{token}', [AuthController::class, 'verifyEmailToken']);
 
 // Role ROUTES
@@ -71,14 +73,4 @@ Route::middleware([IsUserAuth::class])->group(function () {
     });
 
     Route::get('products', [ProductController::class, 'getProducts']);
-
-
-    Route::middleware([IsAdmin::class])->group(function () {
-        Route::controller(ProductController::class)->group(function () {
-            Route::post('products', 'addProduct');
-            Route::get('/products/{id}', 'getProductById');
-            Route::patch('/products/{id}', 'updateProductById');
-            Route::delete('/products/{id}', 'deleteProductById');
-        });
-    });
 });

@@ -8,6 +8,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Token;
+use App\Models\Role;
 use App\Mail\TestEmail;
 use App\Services\TokenService;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -22,55 +23,71 @@ class AuthService
 {
     // Método para registrar un nuevo usuario
     public function register(array $data)
-    {
-        // Validación de los datos
-        $validated = Validator::make($data, [
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|in:admin,user,teacher',
-        ]);
+{
+    // Validar datos de entrada
+    $validated = Validator::make($data, [
+        'name' => 'required|string',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:6',
+        'role' => 'required|in:admin,user,teacher', // Se usará para buscar el rol por nombre
+    ]);
 
-        if ($validated->fails()) {
-            throw new ValidationException($validated);
-        }
-
-        // Verificación de existencia de usuario
-        $existingUser = User::where('email', $data['email'])->first();
-        if ($existingUser) {
-            throw new \Exception('El correo electrónico ya está registrado.');
-        }
-
-        // Crear el usuario
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => $data['role'],
-            'confirmed' => false, // El usuario no está verificado inicialmente
-        ]);
-
-        // Crear el token de verificación
-        $token = TokenService::createVerificationToken($user->id);
-
-        // Enviar el correo con el enlace de verificación
-        $frontendUrl = env('APP_FRONTEND_URL', 'http://localhost:3000');
-        $verificationUrl = $frontendUrl . '/verify-email/' . $token->token;
-
-        Mail::to($user->email)->send(new TestEmail($verificationUrl));
-
-        return [
-            'message' => 'Usuario registrado exitosamente. Token de verificación enviado.',
-            'token' => $token->token, // Token de verificación
-            'user' => [
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'confirmed' => $user->confirmed, // Por defecto es false
-                'created_at' => $user->created_at->toDateTimeString(), // Fecha de creación
-            ]
-        ];
+    if ($validated->fails()) {
+        throw new ValidationException($validated);
     }
+
+    // Verificar si ya existe el usuario
+    $existingUser = User::where('email', $data['email'])->first();
+    if ($existingUser) {
+        throw new \Exception('El correo electrónico ya está registrado.');
+    }
+
+    // Crear el usuario
+    $user = User::create([
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => Hash::make($data['password']),
+        'confirmed' => false,
+        'isActive' => true,
+        'isVerified' => false,
+    ]);
+
+    // Buscar el rol por nombre y asociarlo
+    $role = Role::where('name', $data['role'])->first();
+    if (!$role) {
+        throw new \Exception('El rol especificado no existe.');
+    }
+    $user->roles()->attach($role->id); // Relación many-to-many
+
+    // Crear el token con tipo `email_verification`
+    $token = Token::create([
+        'user_id' => $user->id,
+        'token' => bin2hex(random_bytes(32)),
+        'tokenType' => 'email_verification',
+        'expires_at' => now()->addMinutes(10),
+    ]);
+
+    // Construir URL de verificación
+    $frontendUrl = env('APP_FRONTEND_URL', 'http://localhost:3000');
+    $verificationUrl = $frontendUrl . '/verify-email/' . $token->token;
+
+    // Enviar el correo
+    Mail::to($user->email)->send(new TestEmail($verificationUrl));
+
+    // Respuesta
+    return [
+        'message' => 'Usuario registrado exitosamente. Token de verificación enviado.',
+        'token' => $token->token,
+        'user' => [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $data['role'],
+            'confirmed' => $user->confirmed,
+            'created_at' => $user->created_at->toDateTimeString(),
+        ]
+    ];
+}
+
 
     // Método para login y generar un token JWT
     public function login(array $credentials)
@@ -129,39 +146,38 @@ class AuthService
 
     // Método para verificar el token de un solo uso
     public function verifyEmailToken(string $token)
-    {
-        // Verificar si el token existe en la base de datos
-        $verificationToken = Token::where('token', $token)->first();
+{
+    $verificationToken = Token::where('token', $token)->first();
 
-        if (!$verificationToken) {
-            throw new \Exception('Token de verificación no válido.', 400);
-        }
-
-        // Verificar si el token ha expirado
-        if (!$verificationToken->isValid()) {
-            throw new \Exception('El token ha expirado.', 400);
-        }
-
-        // Obtener el usuario asociado al token
-        $user = $verificationToken->user;
-
-        // Verificar si el usuario ya está confirmado
-        if ($user->confirmed) {
-            throw new \Exception('El usuario ya está confirmado.', 400);
-        }
-
-        // Marcar al usuario como confirmado
-        $user->confirmed = true;
-        $user->save();
-
-        // Eliminar el token después de ser validado
-        $verificationToken->delete();
-
-        return [
-            'message' => 'Correo electrónico verificado exitosamente.',
-            'user' => $user,
-        ];
+    if (!$verificationToken) {
+        throw new \Exception('Token de verificación no válido.', 400);
     }
+
+    if ($verificationToken->tokenType !== 'email_verification') {
+        throw new \Exception('El token no es válido para verificación de correo.', 400);
+    }
+
+    if (!$verificationToken->isValid()) {
+        throw new \Exception('El token ha expirado.', 400);
+    }
+
+    $user = $verificationToken->user;
+
+    if ($user->confirmed) {
+        throw new \Exception('El usuario ya está confirmado.', 400);
+    }
+
+    $user->confirmed = true;
+    $user->save();
+
+    $verificationToken->delete();
+
+    return [
+        'message' => 'Correo electrónico verificado exitosamente.',
+        'user' => $user,
+    ];
+}
+
 
     public function resendVerificationToken(array $data)
     {
@@ -190,6 +206,7 @@ class AuthService
             'user_id' => $user->id,
             'token' => bin2hex(random_bytes(32)), // Genera un token único
             'expires_at' => now()->addMinutes(10), // Expira en 10 minutos
+            'tokenType' => 'email_verification',
         ]);
 
         // Enviar el correo con el nuevo token
