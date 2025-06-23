@@ -1,9 +1,4 @@
 <?php
-
-// app/Services/AuthService.php
-
-// app/Services/AuthService.php
-
 namespace App\Services;
 
 use App\Models\User;

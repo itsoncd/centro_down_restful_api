@@ -56,14 +56,15 @@ Route::prefix('tutor')->group(function () {
     Route::delete('{id}', [TutorController::class, 'destroy']);
 });
 // User ROUTES
-Route::prefix('users')->group(function () {
+Route::middleware([IsUserAuth::class])->prefix('users')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('/', [UserController::class, 'store']);
     Route::get('{id}', [UserController::class, 'show']);
     Route::put('{id}', [UserController::class, 'update']);
-    Route::patch('/users/{id}/activate', [UserController::class, 'activate']);
-    Route::patch('/users/{id}/deactivate', [UserController::class, 'deactivate']);
+    Route::patch('{id}/activate', [UserController::class, 'activate']);
+    Route::patch('{id}/deactivate', [UserController::class, 'deactivate']);
 });
+
 
 //PRIVATE ROUTES
 Route::middleware([IsUserAuth::class])->group(function () {
