@@ -2,10 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CitaController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\AlumnoController;
-use App\Http\Controllers\TutorController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsUserAuth;
@@ -16,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 | Public Routes (No Auth Required)
 |--------------------------------------------------------------------------
 */
+
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('auth/send-token', [AuthController::class, 'resendVerificationToken']);
@@ -59,4 +59,10 @@ Route::middleware([IsAdmin::class])->group(function () {
         Route::patch('{id}/activate', [UserController::class, 'activate']);
         Route::patch('{id}/desactivate', [UserController::class, 'deactivate']);
     });
+
+    // Rutas para schedules (solo index, store, update, destroy)
+    Route::apiResource('schedules', ScheduleController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    // Rutas para holidays (solo index, store, destroy)
+    Route::apiResource('holidays', HolidayController::class)->only(['index', 'store', 'destroy']);
 });

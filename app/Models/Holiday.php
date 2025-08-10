@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Tutor extends Model
+class Holiday extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'nombre_completo',
-        'fecha_nacimiento',
-        'direccion',
-        'telefono',
-        'correo',
+        'date',  // fecha inhábil o asueto
+    ];
+
+    protected $casts = [
+        'date' => 'date',
     ];
 }
