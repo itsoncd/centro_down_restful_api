@@ -105,6 +105,10 @@ class AuthService
             throw new \Exception('El correo electrónico no está registrado.', 404);
         }
 
+        if (!$user->isActive) {
+            throw new \Exception('El usuario no esta activo, contacte con soporte.', 400);
+        }
+
         // Verificar si el usuario está confirmado
         if (!$user->confirmed) {
             throw new \Exception('El correo electrónico no ha sido verificado.', 400);

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
@@ -24,45 +23,63 @@ class RoleController extends Controller
             $request->validate([
                 'name' => 'required|string|unique:roles,name|max:255',
             ]);
+            
+            $role = Role::create([
+                'name' => $request->name,
+            ]);
+
+            return ApiResponse::success($role, 'Rol creado exitosamente', 201);
+
         } catch (ValidationException $e) {
             return ApiResponse::error($e->errors(), 'Error de validación', 422);
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage(), 'Error al crear rol', 500);
         }
-
-        $role = Role::create([
-            'name' => $request->name,
-        ]);
-
-        return ApiResponse::success($role, 'Rol creado exitosamente', 201);
     }
 
     // Mostrar un rol específico
     public function show($id)
     {
-        $role = Role::findOrFail($id);
-        return ApiResponse::success($role, 'Rol obtenido exitosamente');
+        try {
+            $role = Role::findOrFail($id);
+            return ApiResponse::success($role, 'Rol obtenido exitosamente');
+        } catch (\Exception $e) {
+            return ApiResponse::error('Rol no encontrado', 'Error', 404);
+        }
     }
 
     // Actualizar un rol existente
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $id,
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255|unique:roles,name,' . $id,
+            ]);
 
-        $role = Role::findOrFail($id);
-        $role->update([
-            'name' => $request->name,
-        ]);
+            $role = Role::findOrFail($id);
+            $role->update([
+                'name' => $request->name,
+            ]);
 
-        return ApiResponse::success($role, 'Rol actualizado exitosamente');
+            return ApiResponse::success($role, 'Rol actualizado exitosamente');
+
+        } catch (ValidationException $e) {
+            return ApiResponse::error($e->errors(), 'Error de validación', 422);
+        } catch (\Exception $e) {
+            return ApiResponse::error($e->getMessage(), 'Error al actualizar rol', 500);
+        }
     }
 
     // Eliminar un rol
     public function destroy($id)
     {
-        $role = Role::findOrFail($id);
-        $role->delete();
+        try {
+            $role = Role::findOrFail($id);
+            $role->delete();
 
-        return ApiResponse::success(null, 'Rol eliminado exitosamente');
+            return ApiResponse::success(null, 'Rol eliminado exitosamente');
+        } catch (\Exception $e) {
+            return ApiResponse::error('Rol no encontrado o no se pudo eliminar', 'Error', 404);
+        }
     }
 }

@@ -54,11 +54,13 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function getJWTCustomClaims()
-    {
-        return [
-            'role' => $this->role ?? 'user', // Puedes incluir el rol del usuario en el token JWT si es necesario
-        ];
-    }
+{
+    return [
+        'email' => $this->email,
+        'roles' => $this->roles()->pluck('name')->toArray()
+    ];
+}
+
 
     // Método para verificar si el usuario está activo
     public function isActive()
