@@ -37,8 +37,8 @@ class ScheduleController extends Controller
             $schedule = Schedule::findOrFail($id);
 
             $validated = $request->validate([
-                'start_time' => 'sometimes|date',
-                'end_time' => 'sometimes|nullable|date|after_or_equal:start_time',
+                'start_time' => 'sometimes|required|date_format:H:i:s',
+                'end_time' => 'sometimes|nullable|date_format:H:i:s|after_or_equal:start_time',
             ]);
 
             $schedule->update($validated);
