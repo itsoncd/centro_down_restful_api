@@ -29,7 +29,7 @@ class User extends Authenticatable implements JWTSubject
     // Atributos que no se deberían mostrar al serializar el modelo
     protected $hidden = [
         'password', 
-        'remember_token', // Para ocultar también el token de "remember me"
+        // 'remember_token', // Para ocultar también el token de "remember me"
     ];
 
     // Atributos para los cuales se realizará una conversión a tipo
